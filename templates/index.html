@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows Login Session Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Windows Login Session Analysis</h1>
+            <div class="controls">
+                <select id="userFilter">
+                    <option value="">Select User</option>
+                </select>
+                <button onclick="refreshData()">Refresh Data</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab" onclick="switchTab('sessions')">Session Stories</button>
+            <button class="tab active" onclick="switchTab('timeline')">Activity Timeline</button>
+        </div>
+
+        <div id="sessions-tab" class="tab-content">
+            <div class="session-selector">
+                <label for="sessionFilter">Select Session ID:</label>
+                <select id="sessionFilter" onchange="showSessionDetails(this.value)">
+                    <option value="">Select a Session</option>
+                </select>
+            </div>
+
+            <!-- Session details will be shown here -->
+            <div id="sessionDetails" class="session-details">
+                <div class="card">
+                    <div class="session-header">
+                        <!-- Session info will be populated here -->
+                    </div>
+                    <div class="event-timeline">
+                        <!-- Events will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <table class="sessions-table">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>Login Time</th>
+                            <th>Logout Time</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>UAC</th>
+                            <th>Workstation</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="timeline-tab" class="tab-content active">
+            <div class="card">
+                <div class="timeline-container" id="timeline"></div>
+                <div id="timelineLegend" class="legend"></div>
+            </div>
+            <div class="card">
+                <h3>Event Details</h3>
+                <div id="timeline-events"></div>
+            </div>
+        </div>
+
+    </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sessions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/timeline.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initialize();
+        // Ensure timeline tab is active on initial load
+        switchTab('timeline');
+    });
+</script>
+</body>
+</html>

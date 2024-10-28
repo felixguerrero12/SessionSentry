@@ -1,0 +1,533 @@
+/* Base styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header and Controls */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+select, button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+button {
+    background: #1a73e8;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1557b0;
+}
+
+/* Card styles */
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    padding: 10px 20px;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.tab.active {
+    background: #1a73e8;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Session selector and details */
+.session-selector {
+    margin: 20px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.session-selector select {
+    min-width: 200px;
+}
+
+.session-details {
+    display: none;
+}
+
+.session-details.active {
+    display: block;
+}
+
+/* Session header */
+.session-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.session-info strong {
+    color: #666;
+    display: inline-block;
+    width: 120px;
+}
+
+/* Event timeline */
+.event-timeline {
+    margin-left: 20px;
+    padding-left: 20px;
+    border-left: 2px solid #e0e0e0;
+}
+
+.event-item {
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.event-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #666;
+    transform: translateY(-50%);
+}
+
+.event-Login::before { border-color: #4CAF50; }
+.event-Logout::before { border-color: #F44336; }
+
+.event-time {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* Table styles */
+.sessions-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sessions-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+.sessions-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.session-id {
+    font-family: monospace;
+    color: #666;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-Active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-Completed {
+    background-color: #eeeeee;
+    color: #616161;
+}
+
+/* Timeline visualization */
+.timeline-container {
+    height: 500px;
+    position: relative;
+}
+
+.tooltip {
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    line-height: 1.4 !important;
+    white-space: nowrap !important;
+}
+
+.legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.events-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.events-table th,
+.events-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.events-table th {
+    background-color: #f5f5f5;
+}
+
+.event-row:hover {
+    background-color: #f0f0f0;
+}
+
+.card h3 {
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+#timeline-events {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Ensure the timeline and events table cards have some spacing between them */
+#timeline-tab .card + .card {
+    margin-top: 1rem;
+}
+
+#timeline-events {
+    margin-top: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.events-table th,
+.events-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.events-table th {
+    background-color: #f5f5f5;
+}
+
+.events-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+.card {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+.elevation-badge {
+    background-color: #FFD700;
+    color: #000;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.elevated-session {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.elevated-session:hover {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+/* Update point colors for elevated sessions */
+.event-point.elevated {
+    stroke: #FFD700;
+    stroke-width: 2px;
+}
+
+/* Modify the tooltip style */
+.tooltip {
+    max-width: 300px;
+    white-space: normal;
+    line-height: 1.4;
+}
+
+.tooltip strong {
+    color: #333;
+}
+
+.uac-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.uac-badge.elevated {
+    background-color: #FFD700;
+    color: #000;
+}
+
+.uac-badge.standard {
+    background-color: #E0E0E0;
+    color: #666;
+}
+
+/* Add visual indicator for elevated rows */
+tr:has(.uac-badge.elevated) {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+tr:has(.uac-badge.elevated):hover {
+    background-color: rgba(255, 215, 0, 0.2);
+}
+
+.elevated-session {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.elevated-session:hover {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.event-point.elevated {
+    stroke: #FFD700;
+    stroke-width: 2px;
+}
+
+.tooltip .elevated {
+    color: #000;
+    background-color: #FFD700;
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+.tooltip {
+    max-width: 300px;
+    white-space: normal;
+}
+
+.elevated-session {
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.elevated-session:hover {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+}
+
+.event-point.elevated {
+    stroke: #FFD700;
+    stroke-width: 2px;
+}
+
+.tooltip .elevated {
+    color: #000;
+    background-color: #FFD700;
+    padding: 1px 4px;
+    border-radius: 2px;
+}
+
+.tooltip {
+    max-width: 300px;
+    white-space: normal;
+}
+
+.session-duration {
+    font-family: monospace;
+    font-size: 0.9em;
+    color: #666;
+    white-space: nowrap;
+}
+
+.status-badge.status-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.status-completed {
+    background-color: #eeeeee;
+    color: #616161;
+}
+
+/* Make the time columns consistent width */
+.sessions-table td:nth-child(2),
+.sessions-table td:nth-child(3),
+.sessions-table td:nth-child(4) {
+    min-width: 120px;
+    white-space: nowrap;
+}
+
+/* Add hover effect for session rows */
+.sessions-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Style for active sessions */
+.sessions-table tr:has(.status-badge.status-active) {
+    background-color: rgba(46, 125, 50, 0.05);
+}
+
+/* Style for completed sessions */
+.sessions-table tr:has(.status-badge.status-completed) {
+    background-color: rgba(97, 97, 97, 0.05);
+}
+
+/* Additional styles for better readability */
+.sessions-table td {
+    padding: 12px;
+    vertical-align: middle;
+}
+
+.sessions-table small {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.status-badge {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.status-badge.status-completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.status-active {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-badge.status-completed-timeout {
+    background-color: #fff3e0;
+    color: #ef6c00;
+}
+
+.status-badge.status-invalid {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-badge.status-unknown {
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+.events-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.events-table th {
+    padding: 12px 8px;
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+    text-align: left;
+}
+
+.legend-wrapper {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.legend-item {
+    user-select: none;
+}
+
+.legend-item:hover {
+    background-color: rgba(0,0,0,0.1) !important;
+}
+
+.legend-item input[type="checkbox"] {
+    cursor: pointer;
+}
+
+#timelineLegend {
+    margin-top: 20px;
+}
