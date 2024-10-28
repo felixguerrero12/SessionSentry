@@ -1,8 +1,8 @@
-from flask import Flask, render_template, jsonify, request
-import pandas as pd
-from datetime import datetime, timedelta
 import os
 import traceback
+
+import pandas as pd
+from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
@@ -29,6 +29,7 @@ def load_activity_data():
             df['IPAddress'] = df['IPAddress'].fillna('N/A')
             df['LinkedLogonId'] = df['LinkedLogonId'].fillna('')
             df['LogonType'] = df['LogonType'].fillna('N/A')
+
             df['IsElevated'] = df['IsElevated'].fillna(False)
 
             # Remove ElevatedTime handling since we don't have this column
@@ -38,7 +39,7 @@ def load_activity_data():
             df['LogonId'] = df['LogonId'].astype(str)
 
             # Convert other string columns - only include columns we actually have
-            string_columns = ['Username', 'Domain', 'WorkstationName', 'EventType', 'EventId']
+            string_columns = ['Username', 'Domain', 'WorkstationName', 'EventType', 'EventId', 'LogonType']
             for col in string_columns:
                 if col in df.columns:
                     df[col] = df[col].fillna('').astype(str)
@@ -53,6 +54,7 @@ def load_activity_data():
 
     print(f"CSV file not found: {csv_path}")
     return pd.DataFrame()
+
 
 def get_timeline_data(df, username=None):
     """Create timeline data for visualization"""
@@ -93,7 +95,8 @@ def get_timeline_data(df, username=None):
                 'session_id': event['LogonId'],
                 'details': details,
                 'is_elevated': is_elevated,
-                'elevated_time': None  # We don't have this information
+                'elevated_time': None,  # We don't have this information
+                'logon_type': event['LogonType'] if pd.notnull(event['LogonType']) else 'N/A'  # Add logon type
             }
             timeline_data.append(event_data)
 
@@ -162,8 +165,8 @@ def create_session_stories(df, username=None):
                         'type': event_type,
                         'timestamp': timestamp.isoformat(),
                         'details': (f"Login event {event['EventId']}, "
-                                  f"Type {event['LogonType']}"
-                                  f"{', Linked to ' + event['LinkedLogonId'] if pd.notnull(event['LinkedLogonId']) else ''}")
+                                    f"Type {event['LogonType']}"
+                                    f"{', Linked to ' + event['LinkedLogonId'] if pd.notnull(event['LinkedLogonId']) else ''}")
                     }],
                     'status': 'Active',
                     'duration': None,
@@ -206,6 +209,7 @@ def create_session_stories(df, username=None):
         traceback.print_exc()
         return []
 
+
 def format_duration(minutes):
     """Format duration in minutes to a readable string"""
     if minutes is None:
@@ -220,11 +224,13 @@ def format_duration(minutes):
         return f'{mins}m'
     return f'{hours}h {mins}m'
 
+
 @app.route('/')
 def index():
     df = load_activity_data()
     users = sorted(df['Username'].unique()) if not df.empty else []
     return render_template('index.html', users=users)
+
 
 @app.route('/api/sessions')
 def get_sessions():
@@ -237,6 +243,7 @@ def get_sessions():
         print(f"Error in /api/sessions: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/session/<session_id>')
 def get_session_details(session_id):
@@ -253,6 +260,7 @@ def get_session_details(session_id):
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/users')
 def get_users():
     try:
@@ -263,6 +271,7 @@ def get_users():
         return jsonify(users)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/timeline')
 def get_timeline():
@@ -275,6 +284,7 @@ def get_timeline():
         print(f"Error in /api/timeline: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)

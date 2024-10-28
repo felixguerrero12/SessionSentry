@@ -34,7 +34,7 @@ function updateSessionsTable(sessions) {
     });
 
     // Create table rows for paired sessions
-    pairedSessions.forEach(({ main, linked, isElevated }) => {
+    pairedSessions.forEach(({main, linked, isElevated}) => {
         const row = document.createElement('tr');
         row.className = isElevated ? 'elevated-session' : '';
 
@@ -48,13 +48,13 @@ function updateSessionsTable(sessions) {
             <td class="session-id">
                 ${displaySession.username}<br>
                 <small>${displaySession.session_id}</small>
-                ${linked ? 
-                    `<br><small>Linked: ${linked.session_id}</small>` 
-                    : ''}
-                ${isElevated ? 
-                    `<br><span class="uac-badge elevated" title="${privileges.join('\n')}">UAC Elevated</span>` : 
-                    `<br><span class="uac-badge standard">Standard User</span>`
-                }
+                ${linked ?
+            `<br><small>Linked: ${linked.session_id}</small>`
+            : ''}
+                ${isElevated ?
+            `<br><span class="uac-badge elevated" title="${privileges.join('\n')}">UAC Elevated</span>` :
+            `<br><span class="uac-badge standard">Standard User</span>`
+        }
             </td>
             <td>${formatDateTime(displaySession.start_time)}</td>
             <td>${formatDateTime(displaySession.end_time)}</td>

@@ -1,4 +1,3 @@
-
 function refreshData() {
     updateDashboard();
 }
@@ -21,27 +20,27 @@ function updateDashboard() {
         fetch(`/api/sessions${username ? `?user=${username}` : ''}`),
         fetch(`/api/timeline${username ? `?user=${username}` : ''}`)
     ])
-    .then(responses => Promise.all(responses.map(r => r.json())))
-    .then(([sessions, timeline]) => {
-        // Remove loading message
-        document.querySelector('.loading-message')?.remove();
+        .then(responses => Promise.all(responses.map(r => r.json())))
+        .then(([sessions, timeline]) => {
+            // Remove loading message
+            document.querySelector('.loading-message')?.remove();
 
-        if (activeTab.includes('session')) {
-            updateSessionsTable(sessions);
-            populateSessionFilter(sessions);
-        } else {
-            createTimeline(timeline);
-        }
-    })
-    .catch(error => {
-        console.error('Error fetching data:', error);
-        document.querySelector('.loading-message')?.remove();
+            if (activeTab.includes('session')) {
+                updateSessionsTable(sessions);
+                populateSessionFilter(sessions);
+            } else {
+                createTimeline(timeline);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            document.querySelector('.loading-message')?.remove();
 
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = `Error loading data: ${error.message}. Please try again later.`;
-        container.prepend(errorDiv);
-    });
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = `Error loading data: ${error.message}. Please try again later.`;
+            container.prepend(errorDiv);
+        });
 }
 
 function populateSessionFilter(sessions) {
@@ -118,6 +117,9 @@ function renderSessionDetailsModal(events) {
                     <div class="summary-item">
                         <strong>Duration:</strong> ${duration || 'Active'}
                     </div>
+                    <div class="summary-item">
+                        <strong>Logon Type:</strong> ${loginEvent?.logon_type || 'N/A'}
+                    </div>
                 </div>
                 <div class="session-timeline">
                     <h3>Event Timeline</h3>
@@ -131,12 +133,13 @@ function renderSessionDetailsModal(events) {
                                     <div class="timeline-header">
                                         <span class="event-type">${event.type}</span>
                                         <span class="event-id">Event ID: ${event.event_id}</span>
-                                        ${event.is_elevated ? 
-                                            '<span class="elevation-badge">Elevated</span>' : 
-                                            '<span class="standard-badge">Standard</span>'}
+                                        ${event.is_elevated ?
+        '<span class="elevation-badge">Elevated</span>' :
+        '<span class="standard-badge">Standard</span>'}
                                     </div>
                                     <div class="timeline-details">
                                         <strong>LogonId:</strong> ${event.logon_id}<br>
+                                        ${event.logon_type ? `<strong>Logon Type:</strong> ${event.logon_type}<br>` : ''}
                                         ${event.linked_logon_id ? `<strong>Linked to:</strong> ${event.linked_logon_id}<br>` : ''}
                                         ${event.privileges ? `
                                             <div class="privileges-section">
@@ -158,7 +161,7 @@ function renderSessionDetailsModal(events) {
     detailsContainer.style.display = 'block';
 
     // Add event listener for clicking outside modal to close
-    detailsContainer.addEventListener('click', function(event) {
+    detailsContainer.addEventListener('click', function (event) {
         if (event.target === detailsContainer) {
             closeSessionDetails();
         }
@@ -173,7 +176,7 @@ function closeSessionDetails() {
 }
 
 // Make initialize function global by adding it to window
-window.initialize = function() {
+window.initialize = function () {
     console.log("Initializing application...");
 
     // Add loading message
@@ -219,7 +222,7 @@ window.initialize = function() {
     // Add session filter event listener if it exists
     const sessionFilter = document.getElementById('sessionFilter');
     if (sessionFilter) {
-        sessionFilter.addEventListener('change', function(e) {
+        sessionFilter.addEventListener('change', function (e) {
             if (e.target.value) {
                 showSessionDetails(e.target.value);
             }
@@ -227,7 +230,7 @@ window.initialize = function() {
     }
 
     // Add event listener for ESC key to close modal
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             closeSessionDetails();
         }
@@ -237,8 +240,6 @@ window.initialize = function() {
 };
 
 // Also make these functions global
-window.showSessionDetails = showSessionDetails;
-window.closeSessionDetails = closeSessionDetails;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', window.initialize);

@@ -50,7 +50,7 @@ button:hover {
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Tabs */
@@ -133,7 +133,7 @@ button:hover {
     padding: 10px;
     background: #fff;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     position: relative;
 }
 
@@ -150,8 +150,13 @@ button:hover {
     transform: translateY(-50%);
 }
 
-.event-Login::before { border-color: #4CAF50; }
-.event-Logout::before { border-color: #F44336; }
+.event-Login::before {
+    border-color: #4CAF50;
+}
+
+.event-Logout::before {
+    border-color: #F44336;
+}
 
 .event-time {
     color: #666;
@@ -210,7 +215,7 @@ button:hover {
 
 .tooltip {
     background: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
     line-height: 1.4 !important;
     white-space: nowrap !important;
 }
@@ -301,7 +306,7 @@ button:hover {
 .card {
     background: white;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     padding: 15px;
 }
@@ -513,7 +518,7 @@ tr:has(.uac-badge.elevated):hover {
 .legend-wrapper {
     background: white;
     border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .legend-item {
@@ -521,7 +526,7 @@ tr:has(.uac-badge.elevated):hover {
 }
 
 .legend-item:hover {
-    background-color: rgba(0,0,0,0.1) !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
 .legend-item input[type="checkbox"] {

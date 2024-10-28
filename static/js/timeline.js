@@ -1,7 +1,66 @@
+// Add this right after your EVENT_COLORS constant
+function getContrastColor(hexcolor) {
+    // Remove the # if present
+    hexcolor = hexcolor.replace('#', '');
+
+    // Convert to RGB
+    const r = parseInt(hexcolor.substr(0, 2), 16);
+    const g = parseInt(hexcolor.substr(2, 2), 16);
+    const b = parseInt(hexcolor.substr(4, 2), 16);
+
+    // Calculate luminance
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+
+    // Return black or white depending on background brightness
+    return (yiq >= 128) ? '#000000' : '#ffffff';
+}
+
+// Make the function available globally
+window.getContrastColor = getContrastColor;
+
+const LOGON_TYPES = {
+    '2': 'Interactive',
+    '3': 'Network',
+    '4': 'Batch',
+    '5': 'Service',
+    '7': 'Unlock',
+    '8': 'NetworkCleartext',
+    '9': 'NewCredentials',
+    '10': 'RemoteInteractive',
+    '11': 'CachedInteractive'
+};
+
+const LOGON_TYPE_REVERSE = {
+    'Interactive': '2',
+    'Network': '3',
+    'Batch': '4',
+    'Service': '5',
+    'Unlock': '7',
+    'NetworkCleartext': '8',
+    'NewCredentials': '9',
+    'RemoteInteractive': '10',
+    'CachedInteractive': '11'
+};
+
+function getLogonTypeDisplay(logonType) {
+    if (!logonType) return 'N/A';
+
+    // If it's already a descriptive name, return it
+    if (typeof logonType === 'string' && !LOGON_TYPES[logonType]) {
+        return logonType;
+    }
+
+    // Try to get the description from the numeric code
+    return LOGON_TYPES[logonType] || logonType;
+}
+
+
+
 // Event type color mapping
 const EVENT_COLORS = {
     'Login': '#4CAF50',               // Green
     'Logoff': '#F44336',             // Red
+
     'LoginFailed': '#FF9800',        // Orange
     'WorkstationLocked': '#2196F3',  // Blue
     'WorkstationUnlocked': '#8BC34A', // Light Green
@@ -13,6 +72,7 @@ const EVENT_COLORS = {
     'ExplicitLogin': '#673AB7',      // Deep Purple
     'UserInitiatedLogoff': '#E91E63'  // Pink
 };
+
 
 // Initialize legend state
 const LEGEND_STATE = {};
@@ -58,17 +118,17 @@ function createLegend(container, data) {
         .style('font-weight', '500')  // Made text slightly bolder
         .style('cursor', 'pointer')
         .style('transition', 'all 0.2s ease')  // Smooth transition for hover effects
-        .on('mouseover', function() {
+        .on('mouseover', function () {
             d3.select(this)
                 .style('background', '#f0f0f0')
                 .style('border-color', '#ccc');
         })
-        .on('mouseout', function() {
+        .on('mouseout', function () {
             d3.select(this)
                 .style('background', '#fff')
                 .style('border-color', '#ddd');
         })
-        .on('click', function() {
+        .on('click', function () {
             Object.keys(LEGEND_STATE).forEach(type => {
                 LEGEND_STATE[type] = true;
             });
@@ -87,7 +147,7 @@ function createLegend(container, data) {
         .style('background', '#fff')
         .style('color', '#333')  // Added darker text color
         .style('cursor', 'pointer')
-        .on('click', function() {
+        .on('click', function () {
             Object.keys(LEGEND_STATE).forEach(type => {
                 LEGEND_STATE[type] = false;
             });
@@ -167,7 +227,7 @@ function createLegend(container, data) {
                 .style('text-overflow', 'ellipsis');
 
             // Click handler for the entire legend item
-            legendItem.on('click', function() {
+            legendItem.on('click', function () {
                 const newState = !LEGEND_STATE[type];
                 LEGEND_STATE[type] = newState;
 
@@ -189,7 +249,7 @@ function createLegend(container, data) {
             });
 
             // Prevent checkbox from triggering two events
-            checkbox.on('click', function(event) {
+            checkbox.on('click', function (event) {
                 event.stopPropagation();
                 legendItem.dispatch('click');
             });
@@ -202,7 +262,7 @@ function createLegend(container, data) {
 }
 
 function updateLegendVisuals() {
-    d3.selectAll('.legend-item').each(function() {
+    d3.selectAll('.legend-item').each(function () {
         const type = d3.select(this).select('span:last-child').text();
         const isActive = LEGEND_STATE[type];
 
@@ -374,7 +434,7 @@ function createTimeline(data) {
 
     // Event handlers
     points
-        .on('mouseover', function(event, d) {
+        .on('mouseover', function (event, d) {
             // Highlight the point
             d3.select(this)
                 .attr('r', 8)
@@ -388,21 +448,24 @@ function createTimeline(data) {
 
             tooltip.html(`
                 <div style="border-left: 4px solid ${EVENT_COLORS[d.type]}; padding-left: 8px;">
-                    <strong>${d.type}</strong><br/>
+                    <strong>${d.type}</strong> (Event ${d.event_id})<br/>
                     <strong>User:</strong> ${d.username}<br/>
                     <strong>Time:</strong> ${formatDateTime(d.timestamp)}<br/>
                     <strong>Session ID:</strong> ${d.logon_id}<br/>
                     ${d.linked_logon_id ? `<strong>Linked Session:</strong> ${d.linked_logon_id}<br/>` : ''}
-                    <strong>Event ID:</strong> ${d.event_id}<br/>
+                    <strong>Workstation:</strong> ${d.workstation}<br/>
+                    <strong>IP Address:</strong> ${d.ip_address || 'N/A'}<br/>
+                    <strong>Logon Type:</strong> ${getLogonTypeDisplay(d.logon_type)}<br/>
+                    <strong>Event Type:</strong> ${d.type} (${d.event_id})<br/>
                     <strong>Elevation:</strong> ${d.is_elevated ? 'Elevated' : 'Standard'}
                 </div>
             `)
-            .style('left', (event.pageX + 10) + 'px')
-            .style('top', (event.pageY - 10) + 'px');
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 10) + 'px');
         })
-        .on('mouseout', function() {
+        .on('mouseout', function () {
             // Reset point size
-d3.select(this)
+            d3.select(this)
                 .attr('r', 6)
                 .style('stroke', null);
 
@@ -411,7 +474,7 @@ d3.select(this)
                 .duration(500)
                 .style('opacity', 0);
         })
-        .on('click', function(event, d) {
+        .on('click', function (event, d) {
             if (window.showSessionDetails) {
                 window.showSessionDetails(d.logon_id);
             }
@@ -454,6 +517,9 @@ function updateEventsTable(data) {
                     <th>LogonId</th>
                     <th>Linked LogonId</th>
                     <th>Event ID</th>
+                    <th>Logon Type</th>
+                    <th>Workstation</th>
+                    <th>IP Address</th>
                     <th>Elevation</th>
                 </tr>
             </thead>
@@ -466,7 +532,7 @@ function updateEventsTable(data) {
                         <td>
                             <span class="event-type-badge" style="
                                 background-color: ${EVENT_COLORS[d.type] || '#757575'};
-                                color: white;
+                                color: ${getContrastColor(EVENT_COLORS[d.type] || '#757575')};
                                 padding: 2px 6px;
                                 border-radius: 3px;
                                 font-size: 0.9em;
@@ -478,12 +544,26 @@ function updateEventsTable(data) {
                         <td>${d.linked_logon_id || '-'}</td>
                         <td>${d.event_id}</td>
                         <td>
-                            <span class="elevation-badge" style="
-                                background-color: ${d.is_elevated ? '#9C27B0' : '#757575'};
+                            <span class="logon-type-badge" style="
+                                background-color: #607D8B;
                                 color: white;
                                 padding: 2px 6px;
                                 border-radius: 3px;
                                 font-size: 0.9em;
+                            ">
+                                ${LOGON_TYPES[d.logon_type] || d.logon_type || 'N/A'}
+                            </span>
+                        </td>
+                        <td>${d.workstation}</td>
+                        <td>${d.ip_address || 'N/A'}</td>
+                        <td>
+                            <span class="elevation-badge" style="
+                                background-color: ${d.is_elevated ? '#9C27B0' : '#757575'};
+                                color: #ffffff;
+                                padding: 2px 6px;
+                                border-radius: 3px;
+                                font-size: 0.9em;
+                                text-shadow: 0 1px 1px rgba(0,0,0,0.2);
                             ">
                                 ${d.is_elevated ? 'Elevated' : 'Standard'}
                             </span>
@@ -494,6 +574,16 @@ function updateEventsTable(data) {
         </table>
     `;
 }
+
+const additionalStyles = `
+    .logon-type-badge {
+        display: inline-block;
+        min-width: 70px;
+        text-align: center;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+`;
+
 
 // Add some CSS styles programmatically
 const styles = `
