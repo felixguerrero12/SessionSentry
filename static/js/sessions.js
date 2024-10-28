@@ -1,9 +1,8 @@
-// sessions.js
-
 // Make sure functions are available globally
 window.updateSessionsTable = updateSessionsTable;
 window.populateSessionFilter = populateSessionFilter;
 window.showSessionDetails = showSessionDetails;
+window.closeSessionDetails = closeSessionDetails;
 
 function updateSessionsTable(sessions) {
     const tbody = document.getElementById('sessionsTable');
@@ -37,6 +36,7 @@ function updateSessionsTable(sessions) {
     pairedSessions.forEach(({main, linked, isElevated}) => {
         const row = document.createElement('tr');
         row.className = isElevated ? 'elevated-session' : '';
+        row.style.cursor = 'pointer';  // Add pointer cursor to indicate clickable
 
         const displaySession = main; // Use main session for display
         const privileges = [
@@ -48,25 +48,26 @@ function updateSessionsTable(sessions) {
             <td class="session-id">
                 ${displaySession.username}<br>
                 <small>${displaySession.session_id}</small>
-                ${linked ?
-            `<br><small>Linked: ${linked.session_id}</small>`
-            : ''}
-                ${isElevated ?
-            `<br><span class="uac-badge elevated" title="${privileges.join('\n')}">UAC Elevated</span>` :
-            `<br><span class="uac-badge standard">Standard User</span>`
-        }
+                ${linked ? `<div class="linked">Linked: ${linked.session_id}</div>` : ''}
             </td>
             <td>${formatDateTime(displaySession.start_time)}</td>
-            <td>${formatDateTime(displaySession.end_time)}</td>
+            <td>${formatDateTime(displaySession.end_time) || 'N/A'}</td>
             <td>${formatDuration(displaySession.duration)}</td>
             <td>
                 <span class="status-badge status-${displaySession.status.toLowerCase()}">
                     ${displaySession.status}
                 </span>
             </td>
+            <td>
+                <span class="uac-badge ${isElevated ? 'elevated' : 'standard'}" 
+                      title="${privileges.join('\n')}">
+                    ${isElevated ? 'UAC Elevated' : 'Standard User'}
+                </span>
+            </td>
             <td>${displaySession.workstation}</td>
             <td>${displaySession.ip_address || 'N/A'}</td>
         `;
+
 
         // Add click handler for session details
         row.addEventListener('click', () => showSessionDetails(displaySession.session_id));
@@ -97,17 +98,22 @@ function showSessionDetails(sessionId) {
 
     const username = document.getElementById('userFilter').value;
     fetch(`/api/session-events?logon_id=${sessionId}${username ? `&user=${username}` : ''}`)
-        .then(response => response.json())
-        .then(events => {
-            renderSessionDetails(events);
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
         })
-        .catch(error => console.error('Error loading session details:', error));
+        .then(events => {
+            renderSessionDetailsModal(events);
+        })
+        .catch(error => {
+            console.error('Error loading session details:', error);
+            alert('Error loading session details. Please try again.');
+        });
 }
 
-function renderSessionDetails(events) {
-    const detailsContainer = document.getElementById('sessionDetails');
-    if (!detailsContainer) return;
-
+function renderSessionDetailsModal(events) {
     // Sort events by timestamp
     events.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
@@ -119,34 +125,47 @@ function renderSessionDetails(events) {
     let duration = '';
     if (loginEvent && logoutEvent) {
         const durationMs = new Date(logoutEvent.timestamp) - new Date(loginEvent.timestamp);
-        duration = formatDuration(durationMs / (1000 * 60));
+        duration = formatDuration(durationMs / 1000 / 60);
     }
 
-    // Update session header
-    const headerContainer = detailsContainer.querySelector('.session-header');
-    if (headerContainer) {
-        headerContainer.innerHTML = `
-            <h3>Session Details</h3>
-            <div class="session-info">
-                <p><strong>User:</strong> ${loginEvent?.username || 'Unknown'}</p>
-                <p><strong>Session ID:</strong> ${loginEvent?.logon_id || 'Unknown'}</p>
-                <p><strong>Workstation:</strong> ${loginEvent?.workstation || 'N/A'}</p>
-                <p><strong>Duration:</strong> ${duration || 'Active'}</p>
-            </div>
-        `;
-    }
+    // Get the modal container
+    const modal = document.getElementById('session-details-modal');
+    if (!modal) return;
 
-    // Update event timeline
-    const timelineContainer = detailsContainer.querySelector('.event-timeline');
-    if (timelineContainer) {
-        timelineContainer.innerHTML = events.map(event => `
-            <div class="event-item event-${event.type.toLowerCase()} ${event.is_elevated ? 'elevated' : ''}">
-                <div class="event-time">${formatDateTime(event.timestamp)}</div>
-                <div class="event-content">
+    // Update session summary
+    const summaryContainer = modal.querySelector('.session-summary');
+    summaryContainer.innerHTML = `
+        <div class="summary-item">
+            <strong>User:</strong> ${loginEvent?.username || 'Unknown'}
+        </div>
+        <div class="summary-item">
+            <strong>Session ID:</strong> ${loginEvent?.logon_id || 'Unknown'}
+        </div>
+        <div class="summary-item">
+            <strong>Workstation:</strong> ${loginEvent?.workstation || 'N/A'}
+        </div>
+        <div class="summary-item">
+            <strong>Duration:</strong> ${duration || 'Active'}
+        </div>
+        <div class="summary-item">
+            <strong>Logon Type:</strong> ${loginEvent?.logon_type || 'N/A'}
+        </div>
+    `;
+
+    // Update timeline
+    const timelineContainer = modal.querySelector('.timeline-list');
+    timelineContainer.innerHTML = events.map(event => `
+        <div class="timeline-item ${event.type.toLowerCase()} ${event.is_elevated ? 'elevated' : ''}">
+            <div class="timeline-time">${formatDateTime(event.timestamp)}</div>
+            <div class="timeline-content">
+                <div class="timeline-header">
                     <strong>${event.type}</strong> - Event ${event.event_id}
                     ${event.is_elevated ? '<span class="elevation-badge">Elevated</span>' : ''}
-                    <br>
-                    ${event.linked_logon_id ? `Linked to: ${event.linked_logon_id}<br>` : ''}
+                </div>
+                <div class="timeline-details">
+                    <strong>LogonId:</strong> ${event.logon_id}<br>
+                    ${event.logon_type ? `<strong>Logon Type:</strong> ${event.logon_type}<br>` : ''}
+                    ${event.linked_logon_id ? `<strong>Linked to:</strong> ${event.linked_logon_id}<br>` : ''}
                     ${event.privileges ? `
                         <div class="privileges-section">
                             <strong>Privileges:</strong>
@@ -155,14 +174,35 @@ function renderSessionDetails(events) {
                     ` : ''}
                 </div>
             </div>
-        `).join('');
-    }
+        </div>
+    `).join('');
 
-    // Show the details container
-    detailsContainer.classList.add('active');
+    // Show the modal
+    modal.style.display = 'block';
+
+    // Add event listener for clicking outside modal to close
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            closeSessionDetails();
+        }
+    });
 }
 
-// Make sure these are available globally
+function closeSessionDetails() {
+    const modal = document.getElementById('session-details-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+// Add event listener for ESC key to close modal
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeSessionDetails();
+    }
+});
+
+// Make these functions available globally
 window.updateSessionsTable = updateSessionsTable;
 window.populateSessionFilter = populateSessionFilter;
 window.showSessionDetails = showSessionDetails;
+window.closeSessionDetails = closeSessionDetails;

@@ -261,6 +261,60 @@ def get_session_details(session_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/api/session-events')
+def get_session_events():
+    try:
+        df = load_activity_data()
+        logon_id = request.args.get('logon_id')
+        username = request.args.get('user')
+
+        if not logon_id:
+            return jsonify({'error': 'No logon_id provided'}), 400
+
+        # Filter data for the specific session
+        session_df = df[df['LogonId'] == logon_id]
+        if username:
+            session_df = session_df[session_df['Username'].str.lower() == username.lower()]
+
+        if session_df.empty:
+            return jsonify({'error': 'Session not found'}), 404
+
+        # Convert session data to list of events
+        events = []
+        for _, event in session_df.iterrows():
+            # Convert IsElevated to boolean
+            is_elevated = False
+            if pd.notnull(event['IsElevated']):
+                if isinstance(event['IsElevated'], str):
+                    is_elevated = event['IsElevated'].lower() == 'true'
+                else:
+                    is_elevated = bool(event['IsElevated'])
+
+            event_data = {
+                'timestamp': event['Timestamp'].isoformat(),
+                'type': event['EventType'],
+                'event_id': event['EventId'],
+                'username': event['Username'],
+                'logon_id': event['LogonId'],
+                'linked_logon_id': event['LinkedLogonId'] if pd.notnull(event['LinkedLogonId']) else None,
+                'workstation': event['WorkstationName'],
+                'ip_address': event['IPAddress'],
+                'logon_type': event['LogonType'] if pd.notnull(event['LogonType']) else 'N/A',
+                'is_elevated': is_elevated,
+                'privileges': None  # Add if you have privileges data in your CSV
+            }
+            events.append(event_data)
+
+        # Sort events by timestamp
+        events.sort(key=lambda x: x['timestamp'])
+        return jsonify(events)
+
+    except Exception as e:
+        print(f"Error in /api/session-events: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/users')
 def get_users():
     try:

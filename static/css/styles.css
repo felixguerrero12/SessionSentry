@@ -536,3 +536,104 @@ tr:has(.uac-badge.elevated):hover {
 #timelineLegend {
     margin-top: 20px;
 }
+Fv
+
+/* Table container */
+.card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background: white;
+}
+
+/* Table header styles */
+#sessionsTable thead th {
+    background-color: #f8f9fa;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    white-space: nowrap;
+}
+
+/* Table body styles */
+#sessionsTable tbody td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+/* Session ID column styles */
+.session-id {
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.session-id small {
+    display: block;
+    color: #666;
+    margin-top: 4px;
+}
+
+/* Status badge styles */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.status-completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.status-active {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+/* UAC badge styles */
+.uac-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+.uac-badge.standard {
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+.uac-badge.elevated {
+    background-color: #FFD700;
+    color: #000;
+}
+
+/* Row hover effect */
+#sessionsTable tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#sessionsTable tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Fixed width columns for dates and duration */
+#sessionsTable td:nth-child(2),
+#sessionsTable td:nth-child(3),
+#sessionsTable td:nth-child(4) {
+    min-width: 150px;
+    white-space: nowrap;
+}
+
+/* Linked session styles */
+.session-id .linked {
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 4px;
+}
